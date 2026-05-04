@@ -46,6 +46,7 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showStats, setShowStats] = useState(false);
+  const [groupBarOpen, setGroupBarOpen] = useState(false);
 
   useEffect(() => {
     document.documentElement.setAttribute(
@@ -215,7 +216,7 @@ export default function App() {
             </svg>
           </button>
 
-          <div className="group-control">
+          <div className="group-control desk-only">
             <button
               className={`icon-btn ${groupBy.length > 0 ? "active" : ""}`}
               onClick={() => setGroupBy(groupBy.length > 0 ? [] : ["article"])}
@@ -252,6 +253,22 @@ export default function App() {
             )}
           </div>
 
+          {/* Group toggle for mobile */}
+          <button
+            className="icon-btn mobile-only group-mob-btn"
+            onClick={() => {
+              setGroupBarOpen((o) => !o);
+              if (groupBy.length === 0) setGroupBy(["article"]);
+            }}
+            title="Group words"
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+              <rect x="1" y="1" width="14" height="3" rx="0.5" />
+              <rect x="1" y="6.5" width="14" height="3" rx="0.5" />
+              <rect x="1" y="12" width="14" height="3" rx="0.5" />
+            </svg>
+          </button>
+
           <button
             className="toggle-btn dark-toggle"
             onClick={() => setDarkMode((d) => !d)}
@@ -260,6 +277,28 @@ export default function App() {
           </button>
         </div>
       </header>
+
+      <div className={`mobile-group-bar ${groupBarOpen ? "open" : ""}`}>
+        {TOP_LEVEL_GROUPS.map((opt) => {
+          const isActive = groupBy.includes(opt.value);
+          const topLevels = groupBy.filter((g) => g !== "article");
+          const activeIndex = topLevels.indexOf(opt.value);
+          const showNum = topLevels.length > 1 && isActive;
+          return (
+            <button
+              key={opt.value}
+              className={`group-pill ${isActive ? "active" : ""}`}
+              onClick={() => {
+                if (isActive) setGroupBy(groupBy.filter((g) => g !== opt.value));
+                else setGroupBy([...topLevels, opt.value, "article"]);
+              }}
+            >
+              {showNum && <span className="pill-num">{activeIndex + 1}</span>}
+              {opt.label}
+            </button>
+          );
+        })}
+      </div>
 
       <div className="layout">
         {/* Mobile overlay */}
