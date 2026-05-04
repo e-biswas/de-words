@@ -1,5 +1,7 @@
 # LDW — Learn German Words
 
+**→ [de-words.vercel.app](https://de-words.vercel.app) ←**
+
 A gender-first German vocabulary learning app. Master **der/die/das** through patterns, not rote memorization.
 
 ## Why LDW?
@@ -32,7 +34,7 @@ npm install
 npm run dev
 ```
 
-Open http://localhost:5173
+Open http://localhost:5173 — or use the hosted version at **[de-words.vercel.app](https://de-words.vercel.app)**.
 
 ## Tech
 
@@ -63,7 +65,3 @@ Words sourced from VHS Lernportal vocabulary lists (A1–B1), enriched with AI-g
 | `/` | Peek meaning |
 | `m` | Toggle always-show meaning |
 | `Esc` | Close |
-
-## License
-
-MIT
