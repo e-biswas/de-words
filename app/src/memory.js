@@ -112,18 +112,19 @@ export function recordResult(wordId, wasCorrect) {
 
 // ── Query functions ────────────────────────────────────────────
 
-export function getStatus(wordId) {
-  const mem = load();
-  const entry = mem[wordId];
+function statusFromEntry(entry) {
   if (!entry || entry.level === 0) return "new";
   if (entry.level <= 2) return "learning";
   if (entry.level >= 5) return "mastered";
   return "familiar";
 }
 
+export function getStatus(wordId) {
+  return statusFromEntry(load()[wordId]);
+}
+
 export function getLevel(wordId) {
-  const mem = load();
-  return mem[wordId]?.level || 0;
+  return load()[wordId]?.level || 0;
 }
 
 export function getLevelLabel(wordId) {
@@ -135,9 +136,8 @@ export function getStats(wordId) {
 }
 
 export function isDueForReview(wordId) {
-  const mem = load();
-  const entry = mem[wordId];
-  if (!entry) return true; // new words are always "due"
+  const entry = load()[wordId];
+  if (!entry) return true;
   return Date.now() >= entry.nextReview;
 }
 
@@ -230,7 +230,7 @@ export function getAllStatuses() {
   for (const [id, entry] of Object.entries(mem)) {
     if (!entry || typeof entry !== "object") continue;
     statuses[id] = {
-      status: id in mem ? getStatus(id) : "new",
+      status: statusFromEntry(entry),
       level: entry.level ?? 0,
       label: LEVEL_LABELS[entry.level] || "New",
       isDue: !entry.nextReview || now >= entry.nextReview,

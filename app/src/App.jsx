@@ -6,6 +6,7 @@ import WordGrid from "./components/WordGrid";
 import GroupedView from "./components/GroupedView";
 import FlashcardMode from "./components/FlashcardMode";
 import PatternStats from "./components/PatternStats";
+import Onboarding from "./components/Onboarding";
 import "./App.css";
 
 function humanize(str) {
@@ -47,6 +48,9 @@ export default function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showStats, setShowStats] = useState(false);
   const [groupBarOpen, setGroupBarOpen] = useState(false);
+  const [onboardingOpen, setOnboardingOpen] = useState(() => {
+    return localStorage.getItem("ldw-onboarded") !== "true";
+  });
 
   useEffect(() => {
     document.documentElement.setAttribute(
@@ -117,13 +121,14 @@ export default function App() {
     });
   }, []);
 
-  const setLevelExclusive = useCallback((level) => {
-    setFilters((prev) => ({
-      ...prev,
-      levels: prev.levels.includes(level)
-        ? prev.levels.filter((l) => l !== level)
-        : [level],
-    }));
+  const toggleLevel = useCallback((level) => {
+    setFilters((prev) => {
+      const current = prev.levels;
+      const next = current.includes(level)
+        ? current.filter((l) => l !== level)
+        : [...current, level];
+      return { ...prev, levels: next };
+    });
   }, []);
 
   const clearAllFilters = useCallback(() => {
@@ -178,7 +183,19 @@ export default function App() {
         >
           ☰
         </button>
-        <img src="/cat.svg" alt="" className="logo-cat" width="28" height="28" />
+        <svg className="logo-cat" width="28" height="28" viewBox="0 0 32 32" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M8 11L11 3l3 7" />
+          <path d="M24 11L21 3l-3 7" />
+          <ellipse cx="16" cy="17" rx="9" ry="8" />
+          <ellipse cx="12.5" cy="16" rx="2" ry="2.5" />
+          <ellipse cx="19.5" cy="16" rx="2" ry="2.5" />
+          <circle cx="12.5" cy="16" r="1" fill="currentColor" />
+          <circle cx="19.5" cy="16" r="1" fill="currentColor" />
+          <path d="M15 19l1 1.5l1-1.5" />
+          <path d="M14 20.5q2 1.5 4 0" />
+          <path d="M7 18l3.5 1M7 20l3.5 0.5" />
+          <path d="M25 18l-3.5 1M25 20l-3.5 0.5" />
+        </svg>
         <h1>LDW</h1>
 
         <div className="search-wrap">
@@ -271,6 +288,18 @@ export default function App() {
           </button>
 
           <button
+            className="icon-btn"
+            onClick={() => setOnboardingOpen(true)}
+            title="Help & guide"
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="8" cy="8" r="6.5" />
+              <path d="M6 6.5c0-.8.9-1.5 2-1.5s2 .7 2 1.5c0 1-1 1.3-1 2" />
+              <circle cx="8" cy="11.5" r="0.7" fill="currentColor" stroke="none" />
+            </svg>
+          </button>
+
+          <button
             className="toggle-btn dark-toggle"
             onClick={() => setDarkMode((d) => !d)}
           >
@@ -312,7 +341,7 @@ export default function App() {
             memoryVersion={memoryVersion}
             filters={filters}
             toggleFilter={toggleFilter}
-            setLevelExclusive={setLevelExclusive}
+            toggleLevel={toggleLevel}
             clearAllFilters={clearAllFilters}
             availableTopics={availableTopics}
             availableRules={availableRules}
@@ -378,6 +407,15 @@ export default function App() {
           onClose={() => {
             setFlashcardOpen(false);
             refreshMemory();
+          }}
+        />
+      )}
+
+      {onboardingOpen && (
+        <Onboarding
+          onClose={() => {
+            setOnboardingOpen(false);
+            localStorage.setItem("ldw-onboarded", "true");
           }}
         />
       )}

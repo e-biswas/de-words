@@ -18,7 +18,7 @@ function countMatching(allWords, filters, category, value) {
     if (filters.frequencies?.length > 0 && category !== "frequencies" && !filters.frequencies.includes(w.usage?.frequency)) return false;
     if (filters.registers?.length > 0 && category !== "registers" && !filters.registers.includes(w.usage?.register)) return false;
     if (filters.entityTypes?.length > 0 && category !== "entityTypes" && !filters.entityTypes.includes(w.semantic?.entity_type)) return false;
-    if (filters.learningStatus?.length > 0 && category !== "learningStatus") return w._status === value;
+    if (filters.learningStatus?.length > 0 && category !== "learningStatus" && !filters.learningStatus.includes(w._status)) return false;
 
     switch (category) {
       case "levels": return w._level === value;
@@ -51,7 +51,7 @@ function FilterSection({ title, children, defaultOpen = true }) {
 export default function FilterPanel({
   filters,
   toggleFilter,
-  setLevelExclusive,
+  toggleLevel,
   clearAllFilters,
   availableTopics,
   availableRules,
@@ -69,10 +69,10 @@ export default function FilterPanel({
     "organism", "substance", "time", "action", "quality", "communication",
   ];
   const learningOptions = [
-    { value: "new", label: "New", dot: "○" },
-    { value: "learning", label: "Learning", dot: "🟡" },
-    { value: "familiar", label: "Familiar", dot: "🟠" },
-    { value: "mastered", label: "Mastered", dot: "🟢" },
+    { value: "new", label: "New" },
+    { value: "learning", label: "Learning" },
+    { value: "familiar", label: "Familiar" },
+    { value: "mastered", label: "Mastered" },
   ];
 
   const q = search.toLowerCase();
@@ -113,7 +113,7 @@ export default function FilterPanel({
       <FilterSection title="Level" defaultOpen>
         {["A1", "A2", "B1"].map((level) => (
           <label key={level} className="filter-item">
-            <input type="checkbox" checked={filters.levels.includes(level)} onChange={() => setLevelExclusive(level)} />
+            <input type="checkbox" checked={filters.levels.includes(level)} onChange={() => toggleLevel(level)} />
             <span>{level}</span>
             <span className="filter-count">{countMatching(allWords, filters, "levels", level)}</span>
           </label>
@@ -148,7 +148,7 @@ export default function FilterPanel({
               checked={(filters.learningStatus || []).includes(opt.value)}
               onChange={() => toggleFilter("learningStatus", opt.value)}
             />
-            <span>{opt.dot} {opt.label}</span>
+            <span className={`status-dot status-${opt.value}`} />{opt.label}
             <span className="filter-count">{countMatching(allWords, filters, "learningStatus", opt.value)}</span>
           </label>
         ))}

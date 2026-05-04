@@ -445,6 +445,35 @@ body {
   font-weight: 500;
 }
 
+.status-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 1.5px solid var(--border);
+  background: var(--bg);
+}
+
+.status-dot.status-new {
+  border-color: var(--text-dim);
+}
+
+.status-dot.status-learning {
+  border-color: #eab308;
+  background: #fef9c3;
+}
+
+.status-dot.status-familiar {
+  border-color: #f97316;
+  background: #ffedd5;
+}
+
+.status-dot.status-mastered {
+  border-color: #22c55e;
+  background: #dcfce7;
+}
+
 .filter-item.small {
   font-size: 12px;
   padding: 2px 4px;
