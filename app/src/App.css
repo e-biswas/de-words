@@ -310,7 +310,8 @@ body {
   border-color: var(--accent);
 }
 
-.mobile-only {
+.mobile-only,
+.mobile-group-bar {
   display: none;
 }
 
