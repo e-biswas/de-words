@@ -5,24 +5,26 @@ const DATA_FILES = {
   b1: "/data/vhs_b1.json",
 };
 
-let cachedWords = null;
+let cachedPromise = null;
 
 export async function loadAllWords() {
-  if (cachedWords) return cachedWords;
+  if (cachedPromise) return cachedPromise;
 
-  const results = await Promise.all(
-    LEVELS.map(async (level) => {
-      const resp = await fetch(DATA_FILES[level]);
-      const data = await resp.json();
-      return data.vocabulary.map((w) => ({
-        ...w,
-        _level: level.toUpperCase(),
-      }));
-    })
-  );
+  cachedPromise = (async () => {
+    const results = await Promise.all(
+      LEVELS.map(async (level) => {
+        const resp = await fetch(DATA_FILES[level]);
+        const data = await resp.json();
+        return data.vocabulary.map((w) => ({
+          ...w,
+          _level: level.toUpperCase(),
+        }));
+      })
+    );
+    return results.flat();
+  })();
 
-  cachedWords = results.flat();
-  return cachedWords;
+  return cachedPromise;
 }
 
 export function getTopics(words) {
