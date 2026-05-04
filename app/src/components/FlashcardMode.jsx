@@ -212,12 +212,12 @@ export default function FlashcardMode({ words, onClose }) {
         </div>
 
         <div className="flashcard-shortcuts">
-          <span><kbd>1</kbd> der</span>
-          <span><kbd>2</kbd> die</span>
-          <span><kbd>3</kbd> das</span>
-          <span><kbd>→</kbd> next</span>
-          <span><kbd>s</kbd> skip</span>
-          <span><kbd>/</kbd> peek</span>
+          <span className="desk-only"><kbd>1</kbd> der</span>
+          <span className="desk-only"><kbd>2</kbd> die</span>
+          <span className="desk-only"><kbd>3</kbd> das</span>
+          <span className="desk-only"><kbd>→</kbd> next</span>
+          <span className="desk-only"><kbd>s</kbd> skip</span>
+          <span className="desk-only"><kbd>/</kbd> peek</span>
           <button
             className={`meaning-toggle ${showMeaningAlways ? "on" : ""}`}
             onClick={() => setShowMeaningAlways((m) => !m)}

@@ -178,6 +178,7 @@ export default function App() {
         >
           ☰
         </button>
+        <img src="/cat.svg" alt="" className="logo-cat" width="28" height="28" />
         <h1>LDW</h1>
 
         <div className="search-wrap">

@@ -103,6 +103,11 @@ body {
   overflow: visible;
 }
 
+.logo-cat {
+  flex-shrink: 0;
+  vertical-align: middle;
+}
+
 .app-header h1 {
   font-size: 17px;
   font-weight: 700;
@@ -1661,6 +1666,16 @@ hr {
   .choice-btn {
     padding: 18px 12px;
     font-size: 16px;
+  }
+
+  .flashcard-shortcuts {
+    justify-content: center;
+  }
+
+  .meaning-toggle {
+    padding: 8px 18px;
+    font-size: 13px;
+    border-radius: 10px;
   }
 
   .icon-btn {
