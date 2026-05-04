@@ -1,10 +1,12 @@
 # LDW — Learn German Words
 
-**→ [de-words.vercel.app](https://de-words.vercel.app) ←**
+**--> [Try out the live app online](https://de-words.vercel.app) <--**
 
 A gender-first German vocabulary learning app. Master **der/die/das** through patterns, not rote memorization.
 
 ## Why LDW?
+
+> **My story**: I just started learning Deutsch. However, it's very hard from time to time to remember article of the word. I wanted to learn with some pattern. Maybe there are some pattern; maybe some relation helps you remember. That's it. That was the motivation!
 
 Most apps just show you the article and hope you remember. LDW tells you **why**:
 
