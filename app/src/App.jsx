@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { getTopics, getGenderRules, applyFilters } from "./data";
 import { useFilters } from "./hooks/useFilters";
 import { useWords } from "./hooks/useWords";
+import humanize from "./utils/humanize";
 import FilterPanel from "./components/FilterPanel";
 import WordGrid from "./components/WordGrid";
 import GroupedView from "./components/GroupedView";
@@ -66,6 +67,17 @@ export default function App() {
 
   const availableTopics = useMemo(() => getTopics(allWords), [allWords]);
   const availableRules = useMemo(() => getGenderRules(allWords), [allWords]);
+
+  const patternChips = useMemo(() => {
+    const chips = [];
+    if (filters.ending_pattern?.length > 0) {
+      filters.ending_pattern.forEach((v) => chips.push({ category: "ending_pattern", label: `Ending: ${v}`, value: v }));
+    }
+    if (filters.gender_rule?.length > 0) {
+      filters.gender_rule.forEach((v) => chips.push({ category: "gender_rule", label: `Rule: ${humanize(v)}`, value: v }));
+    }
+    return chips;
+  }, [filters.ending_pattern, filters.gender_rule]);
 
   const nounWords = useMemo(
     () => filteredWords.filter((w) => w.noun),
@@ -303,12 +315,30 @@ export default function App() {
         </aside>
 
         <main className="main">
+          {patternChips.length > 0 && (
+            <div className="mobile-pattern-bar mobile-only">
+              {patternChips.map((chip) => (
+                <span key={chip.category + chip.value} className="pattern-chip">
+                  {chip.label}
+                  <button
+                    className="pattern-chip-x"
+                    onClick={() => toggleFilter(chip.category, chip.value)}
+                    aria-label={`Remove ${chip.label}`}
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
+
           {showStats ? (
             <PatternStats
               words={filteredWords}
               onApplyFilter={(category, value) => {
                 applyPatternFilter(category, value);
                 setShowStats(false);
+                setGroupBy(["article"]);
               }}
             />
           ) : groupBy.length > 0 ? (

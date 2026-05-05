@@ -125,6 +125,17 @@ export function applyFilters(words, filters) {
       if (!rule || !filters.genderRules.includes(rule)) return false;
     }
 
+    // Pattern stats filters (set by clicking a pattern row)
+    if (filters.gender_rule?.length > 0) {
+      const rule = w.gender_patterns?.primary_rule;
+      if (!rule || !filters.gender_rule.includes(rule)) return false;
+    }
+
+    if (filters.ending_pattern?.length > 0) {
+      const ending = w.gender_patterns?.ending_pattern;
+      if (!ending || !filters.ending_pattern.includes(ending)) return false;
+    }
+
     if (filters.pos.length > 0 && !filters.pos.includes(w.part_of_speech)) {
       return false;
     }

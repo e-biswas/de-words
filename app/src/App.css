@@ -337,6 +337,16 @@ body {
   padding: 20px;
 }
 
+/* ── Mobile Pattern Chips Bar ─────────────────── */
+.mobile-pattern-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
 /* ── Article Colors ───────────────────────────── */
 .article-color.article-der { color: var(--der); }
 .article-color.article-die { color: var(--die); }

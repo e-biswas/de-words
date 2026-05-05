@@ -9,6 +9,8 @@ function countMatching(allWords, filters, category, value) {
     if (filters.pos.length > 0 && category !== "pos" && !filters.pos.includes(w.part_of_speech)) return false;
     if (filters.topics.length > 0 && category !== "topics" && !filters.topics.some((t) => (w.semantic?.topics || []).includes(t))) return false;
     if (filters.genderRules.length > 0 && category !== "genderRules" && !filters.genderRules.includes(w.gender_patterns?.primary_rule)) return false;
+    if (filters.gender_rule?.length > 0 && category !== "gender_rule" && !filters.gender_rule.includes(w.gender_patterns?.primary_rule)) return false;
+    if (filters.ending_pattern?.length > 0 && category !== "ending_pattern" && !filters.ending_pattern.includes(w.gender_patterns?.ending_pattern)) return false;
     if (filters.frequencies?.length > 0 && category !== "frequencies" && !filters.frequencies.includes(w.usage?.frequency)) return false;
     if (filters.registers?.length > 0 && category !== "registers" && !filters.registers.includes(w.usage?.register)) return false;
     if (filters.entityTypes?.length > 0 && category !== "entityTypes" && !filters.entityTypes.includes(w.semantic?.entity_type)) return false;
@@ -85,16 +87,42 @@ export default function FilterPanel({
 
   const activeFilterCount = Object.values(filters).reduce((s, a) => s + a.length, 0);
 
+  // Collect pattern filters for chip display
+  const patternChips = [];
+  if (filters.ending_pattern?.length > 0) {
+    filters.ending_pattern.forEach((v) => patternChips.push({ category: "ending_pattern", label: `Ending: ${v}`, value: v }));
+  }
+  if (filters.gender_rule?.length > 0) {
+    filters.gender_rule.forEach((v) => patternChips.push({ category: "gender_rule", label: `Rule: ${humanize(v)}`, value: v }));
+  }
+
   return (
     <div className="filter-panel">
       <div className="filter-header">
         <h3>Filters{activeFilterCount > 0 ? ` (${activeFilterCount})` : ""}</h3>
         {activeFilterCount > 0 && (
           <button className="clear-filters-btn" onClick={clearAllFilters}>
-            Clear {activeFilterCount}
+            Clear all
           </button>
         )}
       </div>
+
+      {patternChips.length > 0 && (
+        <div className="active-pattern-chips">
+          {patternChips.map((chip) => (
+            <span key={chip.category + chip.value} className="pattern-chip">
+              {chip.label}
+              <button
+                className="pattern-chip-x"
+                onClick={() => toggleFilter(chip.category, chip.value)}
+                aria-label={`Remove ${chip.label}`}
+              >
+                ×
+              </button>
+            </span>
+          ))}
+        </div>
+      )}
 
       <input
         type="text"
