@@ -1,13 +1,7 @@
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { recordResult, getStats, buildSession, LEVEL_LABELS } from "../memory";
-
-function humanize(str) {
-  if (!str) return "";
-  return str
-    .split("_")
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(" ");
-}
+import humanize from "../utils/humanize";
+import "./FlashcardMode.css";
 
 export default function FlashcardMode({ words, onClose }) {
   const session = useMemo(() => buildSession(words), [words]);

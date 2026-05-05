@@ -1,19 +1,5 @@
-import { useEffect, useRef } from "react";
-
-function humanize(str) {
-  if (!str) return "";
-  return str
-    .split("_")
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(" ");
-}
-
-const STATUS_DOT = {
-  mastered: "🟢",
-  familiar: "🟠",
-  learning: "🟡",
-  new: "",
-};
+import humanize from "../utils/humanize";
+import "./WordGrid.css";
 
 const LEVEL_DOTS = ["", "·", "··", "···", "✦", "★"];
 

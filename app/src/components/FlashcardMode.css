@@ -1,0 +1,453 @@
+/* ── Flashcard Mode ───────────────────────────── */
+.flashcard-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--overlay);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.flashcard-modal {
+  position: relative;
+  background: var(--surface);
+  border-radius: 16px;
+  padding: 32px;
+  width: 500px;
+  max-width: 90vw;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  animation: modalIn 0.3s ease;
+}
+
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.95) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.flashcard-modal .close-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 2;
+}
+
+.progress-bar-wrap {
+  width: calc(100% - 40px);
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+.flashcard-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+  font-size: 13px;
+  color: var(--text-dim);
+  padding-right: 0;
+}
+
+.flashcard-progress {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.flashcard-level-tag {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 6px;
+  background: var(--accent-bg);
+  color: var(--accent);
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  vertical-align: middle;
+}
+
+.flashcard-stats {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+  align-items: center;
+}
+
+.stat-ok { color: var(--das); font-weight: 600; }
+.stat-wrong { color: var(--die); font-weight: 600; }
+.stat-streak {
+  background: #fef3c7;
+  color: #d97706;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 12px;
+}
+
+.flashcard-body {
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+.flashcard-body.animating {
+  opacity: 0;
+  transform: translateX(-20px);
+}
+
+.flashcard-word {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.flashcard-level {
+  font-size: 11px;
+  padding: 2px 8px;
+  background: var(--bg);
+  border-radius: 4px;
+  color: var(--text-dim);
+}
+
+.flashcard-word h2 {
+  font-size: 32px;
+  font-weight: 700;
+  margin: 8px 0 4px;
+  letter-spacing: -0.02em;
+}
+
+.flashcard-meaning {
+  font-size: 15px;
+  color: var(--text-dim);
+}
+
+/* Flashcard Choices */
+.flashcard-choices {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.choice-btn {
+  flex: 1;
+  padding: 24px 16px;
+  border: 2px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  max-width: 130px;
+  font-family: var(--font);
+}
+
+.choice-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.choice-btn:active {
+  transform: scale(0.97);
+}
+
+.choice-der:hover { border-color: var(--der); background: var(--der-bg); color: var(--der); }
+.choice-die:hover { border-color: var(--die); background: var(--die-bg); color: var(--die); }
+.choice-das:hover { border-color: var(--das); background: var(--das-bg); color: var(--das); }
+
+/* Flashcard Result */
+.result-banner {
+  text-align: center;
+  padding: 14px;
+  border-radius: 12px;
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  animation: resultPop 0.3s ease;
+}
+
+@keyframes resultPop {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.result-banner.correct {
+  background: var(--das-bg);
+  color: var(--das);
+}
+
+.result-banner.wrong {
+  background: var(--die-bg);
+  color: var(--die);
+}
+
+.result-detail {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.result-word {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.result-pattern {
+  font-size: 13px;
+  color: var(--text-dim);
+  margin-bottom: 4px;
+}
+
+.result-pattern .mono {
+  font-family: var(--mono);
+}
+
+.result-hint {
+  font-size: 13px;
+  color: var(--hint-text);
+  background: var(--hint-bg);
+  padding: 8px 12px;
+  border-radius: 8px;
+  margin-top: 8px;
+}
+
+.result-history {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-top: 6px;
+}
+
+.flashcard-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.btn-primary {
+  padding: 12px 28px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: var(--font);
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  padding: 12px 20px;
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: var(--font);
+}
+
+.btn-secondary:hover {
+  background: var(--border);
+}
+
+.flashcard-shortcuts {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 20px;
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.flashcard-shortcuts kbd {
+  display: inline-block;
+  padding: 1px 5px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  font-family: var(--mono);
+  font-size: 10px;
+  margin-right: 2px;
+}
+
+/* Meaning peek & toggle */
+.flashcard-meaning-area {
+  min-height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.peek-btn {
+  background: none;
+  border: none;
+  padding: 2px 6px;
+  font-size: 12px;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-family: var(--font);
+  font-style: italic;
+  transition: color 0.15s;
+  letter-spacing: 0.02em;
+}
+
+.peek-btn:hover {
+  color: var(--accent);
+}
+
+.meaning-toggle {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 2px 10px;
+  font-size: 11px;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-family: var(--font);
+  font-weight: 500;
+  transition: all 0.15s;
+}
+
+.meaning-toggle.on {
+  background: var(--accent-bg);
+  border-color: var(--accent);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.meaning-toggle:hover {
+  border-color: var(--accent);
+}
+
+/* Results screen */
+.results {
+  text-align: center;
+}
+
+.results h2 {
+  margin-bottom: 24px;
+  font-size: 22px;
+}
+
+.results-visual {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.results-ring {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.results-ring::after {
+  content: "";
+  position: absolute;
+  inset: 16px;
+  background: var(--surface);
+  border-radius: 50%;
+}
+
+.results-pct {
+  position: relative;
+  z-index: 1;
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.results-stats {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.stat {
+  padding: 8px 16px;
+  background: var(--bg);
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.stat.correct { color: var(--das); }
+.stat.wrong { color: var(--die); }
+.stat.streak { color: #d97706; }
+.stat.skipped { color: var(--text-dim); }
+
+/* ── Mobile ───────────────────────────────────── */
+@media (max-width: 900px) {
+  .flashcard-modal {
+    width: 95vw;
+    padding: 24px 18px;
+  }
+
+  .flashcard-word h2 {
+    font-size: 26px;
+  }
+
+  .choice-btn {
+    padding: 18px 12px;
+    font-size: 16px;
+  }
+
+  .flashcard-shortcuts {
+    justify-content: center;
+  }
+
+  .meaning-toggle {
+    padding: 8px 18px;
+    font-size: 13px;
+    border-radius: 10px;
+  }
+}
+
+@media (max-width: 500px) {
+  .flashcard-modal {
+    padding: 20px 14px;
+    border-radius: 12px;
+  }
+
+  .flashcard-word h2 {
+    font-size: 22px;
+  }
+
+  .choice-btn {
+    padding: 16px 8px;
+    font-size: 15px;
+  }
+
+  .flashcard-choices {
+    gap: 8px;
+  }
+}

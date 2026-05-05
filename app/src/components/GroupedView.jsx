@@ -1,12 +1,7 @@
 import { useState, useMemo } from "react";
-
-function humanize(str) {
-  if (!str) return "";
-  return str
-    .split("_")
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(" ");
-}
+import humanize from "../utils/humanize";
+import "./WordGrid.css";
+import "./GroupedView.css";
 
 const ARTICLE_ORDER = { der: 0, die: 1, das: 2 };
 

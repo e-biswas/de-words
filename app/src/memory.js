@@ -171,21 +171,21 @@ export function buildSession(words, count = null) {
   });
 
   if (count && count < sorted.length) {
-    // Take a mix: 60% due/priority words, 40% random from remaining
+    // Take a mix: 70% due/priority words, 30% random from remaining
     const due = sorted.filter((w) => w._isDue);
     const notDue = sorted.filter((w) => !w._isDue);
 
     const takeDue = Math.min(due.length, Math.ceil(count * 0.7));
     const takeNotDue = count - takeDue;
 
-    // Shuffle due words a bit (not strictly sorted)
     const shuffledDue = shuffle(due).slice(0, takeDue);
     const shuffledNotDue = shuffle(notDue).slice(0, takeNotDue);
 
     return shuffle([...shuffledDue, ...shuffledNotDue]);
   }
 
-  return sorted;
+  // Always shuffle so order is different each session
+  return shuffle(sorted);
 }
 
 // ── Session stats ──────────────────────────────────────────────

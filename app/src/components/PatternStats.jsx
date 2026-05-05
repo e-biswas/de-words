@@ -1,12 +1,6 @@
 import { useMemo } from "react";
-
-function humanize(str) {
-  if (!str) return "";
-  return str
-    .split("_")
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(" ");
-}
+import humanize from "../utils/humanize";
+import "./PatternStats.css";
 
 export default function PatternStats({ words, onApplyFilter }) {
   const endingStats = useMemo(() => {

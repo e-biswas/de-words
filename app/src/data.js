@@ -1,31 +1,88 @@
 const LEVELS = ["a1", "a2", "b1"];
-const DATA_FILES = {
-  a1: "/data/vhs_a1.json",
-  a2: "/data/vhs_a2.json",
-  b1: "/data/vhs_b1.json",
-};
+const DATA_DIR = "/data";
 
-let cachedPromise = null;
+// POS values that carry noun data (article, gender_patterns)
+const NOUN_POS = new Set(["noun", "person_role_noun_pair", "noun_phrase"]);
 
-export async function loadAllWords() {
-  if (cachedPromise) return cachedPromise;
+// ── Incremental word cache ──────────────────────────────────────
 
-  cachedPromise = (async () => {
-    const results = await Promise.all(
-      LEVELS.map(async (level) => {
-        const resp = await fetch(DATA_FILES[level]);
-        const data = await resp.json();
-        return data.vocabulary.map((w) => ({
-          ...w,
-          _level: level.toUpperCase(),
-        }));
-      })
-    );
-    return results.flat();
-  })();
+let wordCache = [];
+const loadedKeys = new Set();
+const pendingRequests = new Map(); // deduplicate in-flight fetches
 
-  return cachedPromise;
+export function getWords() {
+  return wordCache;
 }
+
+/**
+ * Load words incrementally. Only fetches level+pos combinations not yet loaded.
+ * @param {{ levels?: string[], pos?: string[] }} options
+ * @returns {Promise<Array>} the full (updated) word list
+ */
+export async function loadWords({ levels = [], pos = [] } = {}) {
+  const fetchPromises = [];
+
+  // Empty pos means "show all" — load everything
+  const showAll = pos.length === 0;
+  const wantsNouns = showAll || pos.some((p) => NOUN_POS.has(p));
+  const wantsOther = showAll || pos.some((p) => !NOUN_POS.has(p));
+
+  for (const rawLevel of levels) {
+    const level = rawLevel.toLowerCase();
+    if (wantsNouns) {
+      const key = `${level}_nouns`;
+      if (!loadedKeys.has(key) && !pendingRequests.has(key)) {
+        const file = `${DATA_DIR}/vhs_${level}_nouns.json`;
+        const promise = fetchFile(level, key, file);
+        pendingRequests.set(key, promise);
+        fetchPromises.push(promise);
+      } else if (pendingRequests.has(key)) {
+        fetchPromises.push(pendingRequests.get(key));
+      }
+    }
+    if (wantsOther) {
+      const key = `${level}_other`;
+      if (!loadedKeys.has(key) && !pendingRequests.has(key)) {
+        const file = `${DATA_DIR}/vhs_${level}_other.json`;
+        const promise = fetchFile(level, key, file);
+        pendingRequests.set(key, promise);
+        fetchPromises.push(promise);
+      } else if (pendingRequests.has(key)) {
+        fetchPromises.push(pendingRequests.get(key));
+      }
+    }
+  }
+
+  if (fetchPromises.length === 0) return wordCache;
+
+  await Promise.all(fetchPromises);
+  return wordCache;
+}
+
+async function fetchFile(level, key, file) {
+  const resp = await fetch(file);
+  const data = await resp.json();
+  const words = data.vocabulary.map((w) => ({
+    ...w,
+    _level: level.toUpperCase(),
+  }));
+  // Only merge once — deduplicated concurrent callers share the same promise
+  if (!loadedKeys.has(key)) {
+    wordCache = [...wordCache, ...words];
+    loadedKeys.add(key);
+  }
+  pendingRequests.delete(key);
+  return words;
+}
+
+/**
+ * For backward compat during transition. Returns all currently loaded words.
+ */
+export async function loadAllWords() {
+  return loadWords({ levels: LEVELS, pos: [] });
+}
+
+// ── Derived data queries ────────────────────────────────────────
 
 export function getTopics(words) {
   const topicSet = new Set();
@@ -45,37 +102,33 @@ export function getGenderRules(words) {
   return [...rules].sort();
 }
 
+// ── Filtering ───────────────────────────────────────────────────
+
 export function applyFilters(words, filters) {
   return words.filter((w) => {
-    // Level filter
     if (filters.levels.length > 0 && !filters.levels.includes(w._level)) {
       return false;
     }
 
-    // Article filter (nouns only)
     if (filters.articles.length > 0) {
       const article = w.noun?.article;
       if (!article || !filters.articles.includes(article)) return false;
     }
 
-    // Topic filter
     if (filters.topics.length > 0) {
       const topics = w.semantic?.topics || [];
       if (!filters.topics.some((t) => topics.includes(t))) return false;
     }
 
-    // Gender rule filter (nouns only)
     if (filters.genderRules.length > 0) {
       const rule = w.gender_patterns?.primary_rule;
       if (!rule || !filters.genderRules.includes(rule)) return false;
     }
 
-    // Part of speech filter
     if (filters.pos.length > 0 && !filters.pos.includes(w.part_of_speech)) {
       return false;
     }
 
-    // Frequency filter
     if (
       filters.frequencies?.length > 0 &&
       !filters.frequencies.includes(w.usage?.frequency)
@@ -83,7 +136,6 @@ export function applyFilters(words, filters) {
       return false;
     }
 
-    // Register filter
     if (
       filters.registers?.length > 0 &&
       !filters.registers.includes(w.usage?.register)
@@ -91,7 +143,6 @@ export function applyFilters(words, filters) {
       return false;
     }
 
-    // Entity type filter
     if (
       filters.entityTypes?.length > 0 &&
       !filters.entityTypes.includes(w.semantic?.entity_type)
@@ -99,10 +150,9 @@ export function applyFilters(words, filters) {
       return false;
     }
 
-    // Learning status filter
     if (
       filters.learningStatus?.length > 0 &&
-      !filters.learningStatus.includes(w._status || "fresh")
+      !filters.learningStatus.includes(w._status || "new")
     ) {
       return false;
     }
