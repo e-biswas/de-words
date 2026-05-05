@@ -622,21 +622,27 @@ hr {
 
 /* ── Practice Button ──────────────────────────── */
 .practice-btn {
-  margin-top: auto;
   padding: 14px 16px;
   background: var(--accent);
   color: #fff;
   border: none;
   border-radius: var(--radius);
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 15px;
+  font-weight: 700;
   cursor: pointer;
   transition: all 0.15s;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 10px;
   font-family: var(--font);
+  letter-spacing: -0.01em;
+  margin-bottom: 12px;
+  flex-shrink: 0;
+}
+
+.practice-btn svg {
+  opacity: 0.9;
 }
 
 .practice-count {
