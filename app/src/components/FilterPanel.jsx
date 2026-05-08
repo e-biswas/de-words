@@ -1,34 +1,154 @@
-import { useState, useMemo } from "react";
+import { memo, useState, useMemo } from "react";
 import humanize from "../utils/humanize";
 import "./FilterPanel.css";
 
-function countMatching(allWords, filters, category, value) {
-  return allWords.filter((w) => {
-    if (filters.levels.length > 0 && category !== "levels" && !filters.levels.includes(w._level)) return false;
-    if (filters.articles.length > 0 && category !== "articles" && !filters.articles.includes(w.noun?.article)) return false;
-    if (filters.pos.length > 0 && category !== "pos" && !filters.pos.includes(w.part_of_speech)) return false;
-    if (filters.topics.length > 0 && category !== "topics" && !filters.topics.some((t) => (w.semantic?.topics || []).includes(t))) return false;
-    if (filters.genderRules.length > 0 && category !== "genderRules" && !filters.genderRules.includes(w.gender_patterns?.primary_rule)) return false;
-    if (filters.gender_rule?.length > 0 && category !== "gender_rule" && !filters.gender_rule.includes(w.gender_patterns?.primary_rule)) return false;
-    if (filters.ending_pattern?.length > 0 && category !== "ending_pattern" && !filters.ending_pattern.includes(w.gender_patterns?.ending_pattern)) return false;
-    if (filters.frequencies?.length > 0 && category !== "frequencies" && !filters.frequencies.includes(w.usage?.frequency)) return false;
-    if (filters.registers?.length > 0 && category !== "registers" && !filters.registers.includes(w.usage?.register)) return false;
-    if (filters.entityTypes?.length > 0 && category !== "entityTypes" && !filters.entityTypes.includes(w.semantic?.entity_type)) return false;
-    if (filters.learningStatus?.length > 0 && category !== "learningStatus" && !filters.learningStatus.includes(w._status)) return false;
+const LEVEL_OPTIONS = ["A1", "A2", "B1"];
+const ARTICLE_OPTIONS = ["der", "die", "das"];
+const POS_OPTIONS = ["noun", "verb", "adjective"];
+const FREQUENCY_OPTIONS = ["core", "common", "situational", "academic"];
+const REGISTER_OPTIONS = ["neutral", "formal", "informal", "colloquial"];
+const ENTITY_OPTIONS = [
+  "person", "place", "object", "food", "abstract", "event",
+  "organism", "substance", "time", "action", "quality", "communication",
+];
+const LEARNING_OPTIONS = [
+  { value: "new", label: "New" },
+  { value: "learning", label: "Learning" },
+  { value: "familiar", label: "Familiar" },
+  { value: "mastered", label: "Mastered" },
+];
 
-    switch (category) {
-      case "levels": return w._level === value;
-      case "articles": return w.noun?.article === value;
-      case "pos": return w.part_of_speech === value;
-      case "topics": return (w.semantic?.topics || []).includes(value);
-      case "genderRules": return w.gender_patterns?.primary_rule === value;
-      case "frequencies": return w.usage?.frequency === value;
-      case "registers": return w.usage?.register === value;
-      case "entityTypes": return w.semantic?.entity_type === value;
-      case "learningStatus": return w._status === value;
-      default: return false;
+function initCounter(values) {
+  return Object.fromEntries(values.map((v) => [v, 0]));
+}
+
+function matchesFiltersExcept(w, filters, category) {
+  if (category !== "levels" && filters.levels.length > 0 && !filters.levels.includes(w._level)) return false;
+  if (category !== "articles" && filters.articles.length > 0 && !filters.articles.includes(w.noun?.article)) return false;
+  if (category !== "pos" && filters.pos.length > 0 && !filters.pos.includes(w.part_of_speech)) return false;
+  if (
+    category !== "topics" &&
+    filters.topics.length > 0 &&
+    !filters.topics.some((t) => (w.semantic?.topics || []).includes(t))
+  ) {
+    return false;
+  }
+  if (
+    category !== "genderRules" &&
+    filters.genderRules.length > 0 &&
+    !filters.genderRules.includes(w.gender_patterns?.primary_rule)
+  ) {
+    return false;
+  }
+  if (
+    filters.gender_rule?.length > 0 &&
+    category !== "gender_rule" &&
+    !filters.gender_rule.includes(w.gender_patterns?.primary_rule)
+  ) {
+    return false;
+  }
+  if (
+    filters.ending_pattern?.length > 0 &&
+    category !== "ending_pattern" &&
+    !filters.ending_pattern.includes(w.gender_patterns?.ending_pattern)
+  ) {
+    return false;
+  }
+  if (
+    category !== "frequencies" &&
+    filters.frequencies?.length > 0 &&
+    !filters.frequencies.includes(w.usage?.frequency)
+  ) {
+    return false;
+  }
+  if (
+    category !== "registers" &&
+    filters.registers?.length > 0 &&
+    !filters.registers.includes(w.usage?.register)
+  ) {
+    return false;
+  }
+  if (
+    category !== "entityTypes" &&
+    filters.entityTypes?.length > 0 &&
+    !filters.entityTypes.includes(w.semantic?.entity_type)
+  ) {
+    return false;
+  }
+  if (
+    category !== "learningStatus" &&
+    filters.learningStatus?.length > 0 &&
+    !filters.learningStatus.includes(w._status || "new")
+  ) {
+    return false;
+  }
+
+  return true;
+}
+
+function buildCountMaps(allWords, filters, availableTopics, availableRules) {
+  const counts = {
+    levels: initCounter(LEVEL_OPTIONS),
+    articles: initCounter(ARTICLE_OPTIONS),
+    pos: initCounter(POS_OPTIONS),
+    topics: initCounter(availableTopics),
+    genderRules: initCounter(availableRules),
+    frequencies: initCounter(FREQUENCY_OPTIONS),
+    registers: initCounter(REGISTER_OPTIONS),
+    entityTypes: initCounter(ENTITY_OPTIONS),
+    learningStatus: initCounter(LEARNING_OPTIONS.map((o) => o.value)),
+  };
+
+  for (const w of allWords) {
+    if (matchesFiltersExcept(w, filters, "levels")) {
+      const level = w._level;
+      if (level in counts.levels) counts.levels[level] += 1;
     }
-  }).length;
+
+    if (matchesFiltersExcept(w, filters, "articles")) {
+      const article = w.noun?.article;
+      if (article in counts.articles) counts.articles[article] += 1;
+    }
+
+    if (matchesFiltersExcept(w, filters, "pos")) {
+      const pos = w.part_of_speech;
+      if (pos in counts.pos) counts.pos[pos] += 1;
+    }
+
+    if (matchesFiltersExcept(w, filters, "learningStatus")) {
+      const status = w._status || "new";
+      if (status in counts.learningStatus) counts.learningStatus[status] += 1;
+    }
+
+    if (matchesFiltersExcept(w, filters, "frequencies")) {
+      const frequency = w.usage?.frequency;
+      if (frequency in counts.frequencies) counts.frequencies[frequency] += 1;
+    }
+
+    if (matchesFiltersExcept(w, filters, "registers")) {
+      const register = w.usage?.register;
+      if (register in counts.registers) counts.registers[register] += 1;
+    }
+
+    if (matchesFiltersExcept(w, filters, "genderRules")) {
+      const rule = w.gender_patterns?.primary_rule;
+      if (rule in counts.genderRules) counts.genderRules[rule] += 1;
+    }
+
+    if (matchesFiltersExcept(w, filters, "entityTypes")) {
+      const entityType = w.semantic?.entity_type;
+      if (entityType in counts.entityTypes) counts.entityTypes[entityType] += 1;
+    }
+
+    if (matchesFiltersExcept(w, filters, "topics")) {
+      const topics = w.semantic?.topics || [];
+      for (const topic of topics) {
+        if (topic in counts.topics) counts.topics[topic] += 1;
+      }
+    }
+  }
+
+  return counts;
 }
 
 function FilterSection({ title, children, defaultOpen = true }) {
@@ -44,7 +164,7 @@ function FilterSection({ title, children, defaultOpen = true }) {
   );
 }
 
-export default function FilterPanel({
+function FilterPanel({
   filters,
   toggleFilter,
   toggleLevel,
@@ -52,24 +172,8 @@ export default function FilterPanel({
   availableTopics,
   availableRules,
   allWords,
-  memoryVersion,
 }) {
   const [search, setSearch] = useState("");
-
-  const articles = ["der", "die", "das"];
-  const posOptions = ["noun", "verb", "adjective"];
-  const freqOptions = ["core", "common", "situational", "academic"];
-  const registerOptions = ["neutral", "formal", "informal", "colloquial"];
-  const entityOptions = [
-    "person", "place", "object", "food", "abstract", "event",
-    "organism", "substance", "time", "action", "quality", "communication",
-  ];
-  const learningOptions = [
-    { value: "new", label: "New" },
-    { value: "learning", label: "Learning" },
-    { value: "familiar", label: "Familiar" },
-    { value: "mastered", label: "Mastered" },
-  ];
 
   const q = search.toLowerCase();
   const filteredTopics = useMemo(
@@ -81,9 +185,16 @@ export default function FilterPanel({
     [availableRules, q]
   );
   const filteredEntities = useMemo(
-    () => !q ? entityOptions : entityOptions.filter((e) => humanize(e).toLowerCase().includes(q)),
+    () => !q ? ENTITY_OPTIONS : ENTITY_OPTIONS.filter((e) => humanize(e).toLowerCase().includes(q)),
     [q]
   );
+
+  const countMaps = useMemo(
+    () => buildCountMaps(allWords, filters, availableTopics, availableRules),
+    [allWords, filters, availableTopics, availableRules]
+  );
+
+  const countFor = (category, value) => countMaps[category]?.[value] || 0;
 
   const activeFilterCount = Object.values(filters).reduce((s, a) => s + a.length, 0);
 
@@ -133,37 +244,37 @@ export default function FilterPanel({
       />
 
       <FilterSection title="Level" defaultOpen>
-        {["A1", "A2", "B1"].map((level) => (
+        {LEVEL_OPTIONS.map((level) => (
           <label key={level} className="filter-item">
             <input type="checkbox" checked={filters.levels.includes(level)} onChange={() => toggleLevel(level)} />
             <span>{level}</span>
-            <span className="filter-count">{countMatching(allWords, filters, "levels", level)}</span>
+            <span className="filter-count">{countFor("levels", level)}</span>
           </label>
         ))}
       </FilterSection>
 
       <FilterSection title="Article" defaultOpen>
-        {articles.map((art) => (
+        {ARTICLE_OPTIONS.map((art) => (
           <label key={art} className="filter-item">
             <input type="checkbox" checked={filters.articles.includes(art)} onChange={() => toggleFilter("articles", art)} />
             <span className={`article-color article-${art}`}>{art}</span>
-            <span className="filter-count">{countMatching(allWords, filters, "articles", art)}</span>
+            <span className="filter-count">{countFor("articles", art)}</span>
           </label>
         ))}
       </FilterSection>
 
       <FilterSection title="Part of Speech">
-        {posOptions.map((pos) => (
+        {POS_OPTIONS.map((pos) => (
           <label key={pos} className="filter-item">
             <input type="checkbox" checked={filters.pos.includes(pos)} onChange={() => toggleFilter("pos", pos)} />
             <span>{humanize(pos)}</span>
-            <span className="filter-count">{countMatching(allWords, filters, "pos", pos)}</span>
+            <span className="filter-count">{countFor("pos", pos)}</span>
           </label>
         ))}
       </FilterSection>
 
       <FilterSection title="Learning Status">
-        {learningOptions.map((opt) => (
+        {LEARNING_OPTIONS.map((opt) => (
           <label key={opt.value} className="filter-item">
             <input
               type="checkbox"
@@ -171,27 +282,27 @@ export default function FilterPanel({
               onChange={() => toggleFilter("learningStatus", opt.value)}
             />
             <span className={`status-dot status-${opt.value}`} />{opt.label}
-            <span className="filter-count">{countMatching(allWords, filters, "learningStatus", opt.value)}</span>
+            <span className="filter-count">{countFor("learningStatus", opt.value)}</span>
           </label>
         ))}
       </FilterSection>
 
       <FilterSection title="Frequency">
-        {freqOptions.map((freq) => (
+        {FREQUENCY_OPTIONS.map((freq) => (
           <label key={freq} className="filter-item small">
             <input type="checkbox" checked={(filters.frequencies || []).includes(freq)} onChange={() => toggleFilter("frequencies", freq)} />
             <span>{humanize(freq)}</span>
-            <span className="filter-count">{countMatching(allWords, filters, "frequencies", freq)}</span>
+            <span className="filter-count">{countFor("frequencies", freq)}</span>
           </label>
         ))}
       </FilterSection>
 
       <FilterSection title="Register">
-        {registerOptions.map((reg) => (
+        {REGISTER_OPTIONS.map((reg) => (
           <label key={reg} className="filter-item small">
             <input type="checkbox" checked={(filters.registers || []).includes(reg)} onChange={() => toggleFilter("registers", reg)} />
             <span>{humanize(reg)}</span>
-            <span className="filter-count">{countMatching(allWords, filters, "registers", reg)}</span>
+            <span className="filter-count">{countFor("registers", reg)}</span>
           </label>
         ))}
       </FilterSection>
@@ -202,7 +313,7 @@ export default function FilterPanel({
             <label key={rule} className="filter-item small">
               <input type="checkbox" checked={filters.genderRules.includes(rule)} onChange={() => toggleFilter("genderRules", rule)} />
               <span>{humanize(rule)}</span>
-              <span className="filter-count">{countMatching(allWords, filters, "genderRules", rule)}</span>
+              <span className="filter-count">{countFor("genderRules", rule)}</span>
             </label>
           ))}
         </div>
@@ -214,7 +325,7 @@ export default function FilterPanel({
             <label key={et} className="filter-item small">
               <input type="checkbox" checked={(filters.entityTypes || []).includes(et)} onChange={() => toggleFilter("entityTypes", et)} />
               <span>{humanize(et)}</span>
-              <span className="filter-count">{countMatching(allWords, filters, "entityTypes", et)}</span>
+              <span className="filter-count">{countFor("entityTypes", et)}</span>
             </label>
           ))}
         </div>
@@ -226,7 +337,7 @@ export default function FilterPanel({
             <label key={topic} className="filter-item small">
               <input type="checkbox" checked={filters.topics.includes(topic)} onChange={() => toggleFilter("topics", topic)} />
               <span>{humanize(topic)}</span>
-              <span className="filter-count">{countMatching(allWords, filters, "topics", topic)}</span>
+              <span className="filter-count">{countFor("topics", topic)}</span>
             </label>
           ))}
         </div>
@@ -234,3 +345,5 @@ export default function FilterPanel({
     </div>
   );
 }
+
+export default memo(FilterPanel);

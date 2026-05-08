@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { memo, useState, useMemo } from "react";
 import humanize from "../utils/humanize";
 import "./WordGrid.css";
 import "./GroupedView.css";
@@ -125,17 +125,19 @@ function buildArticleGroups(words) {
 const LEVEL_DOTS = ["", "·", "··", "···", "✦", "★"];
 
 function WordCards({ words, onSelect, selectedId }) {
+  const animateCards = words.length <= 40;
+
   return (
     <div className="group-words">
       {words.map((w, i) => {
         const article = w.noun?.article;
         const sel = w.id === selectedId;
+        const shouldAnimate = animateCards && i < 12;
         return (
           <button
             key={w.id}
-            className={`word-card ${sel ? "selected" : ""}`}
+            className={`word-card ${sel ? "selected" : ""} ${shouldAnimate ? "card-animate" : ""}`}
             onClick={() => onSelect(w)}
-            style={{ animationDelay: `${i * 25}ms` }}
           >
             <div className="card-top">
               <span className={`card-article article-${article || "none"}`}>
@@ -255,7 +257,7 @@ function NestedSection({ child, depth, onSelect, selectedId }) {
   );
 }
 
-export default function GroupedView({ words, groupBy, onSelect, selectedId }) {
+function GroupedView({ words, groupBy, onSelect, selectedId }) {
   const tree = useMemo(
     () => buildTree(words, groupBy),
     [words, groupBy]
@@ -308,3 +310,5 @@ export default function GroupedView({ words, groupBy, onSelect, selectedId }) {
     </div>
   );
 }
+
+export default memo(GroupedView);

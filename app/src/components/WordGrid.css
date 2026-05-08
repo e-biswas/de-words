@@ -20,10 +20,13 @@
   font: inherit;
   color: inherit;
   transition: all 0.2s ease;
-  animation: cardIn 0.35s ease both;
   position: relative;
   min-width: 0;
   overflow: hidden;
+}
+
+.word-card.card-animate {
+  animation: cardIn 0.2s ease-out both;
 }
 
 @keyframes cardIn {
@@ -101,6 +104,14 @@
   border-radius: 4px;
   font-size: 10px;
   font-weight: 600;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .word-card,
+  .word-card.card-animate {
+    animation: none !important;
+    transition: none !important;
+  }
 }
 
 /* ── Mobile ───────────────────────────────────── */

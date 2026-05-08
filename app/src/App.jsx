@@ -27,7 +27,7 @@ export default function App() {
     applyPatternFilter,
   } = useFilters();
 
-  const { allWords, loading, memoryVersion, refreshMemory } = useWords(filters);
+  const { allWords, loading, refreshMemory } = useWords(filters);
 
   const [flashcardOpen, setFlashcardOpen] = useState(false);
   const [selectedWord, setSelectedWord] = useState(null);
@@ -303,7 +303,6 @@ export default function App() {
             <span className="practice-count">{nounWords.length}</span>
           </button>
           <FilterPanel
-            memoryVersion={memoryVersion}
             filters={filters}
             toggleFilter={toggleFilter}
             toggleLevel={toggleLevel}

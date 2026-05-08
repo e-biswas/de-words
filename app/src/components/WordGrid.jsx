@@ -1,9 +1,12 @@
+import { memo } from "react";
 import humanize from "../utils/humanize";
 import "./WordGrid.css";
 
 const LEVEL_DOTS = ["", "·", "··", "···", "✦", "★"];
 
-export default function WordGrid({ words, onSelect, selectedId }) {
+function WordGrid({ words, onSelect, selectedId }) {
+  const animateCards = words.length <= 40;
+
   if (words.length === 0) {
     return (
       <div className="empty-state">
@@ -19,13 +22,13 @@ export default function WordGrid({ words, onSelect, selectedId }) {
       {words.map((w, i) => {
         const article = w.noun?.article;
         const isSelected = w.id === selectedId;
+        const shouldAnimate = animateCards && i < 12;
 
         return (
           <button
             key={w.id}
-            className={`word-card ${isSelected ? "selected" : ""}`}
+            className={`word-card ${isSelected ? "selected" : ""} ${shouldAnimate ? "card-animate" : ""}`}
             onClick={() => onSelect(w)}
-            style={{ animationDelay: `${i * 25}ms` }}
           >
             <div className="card-top">
               <span className={`card-article article-${article || "none"}`}>
@@ -54,3 +57,5 @@ export default function WordGrid({ words, onSelect, selectedId }) {
     </div>
   );
 }
+
+export default memo(WordGrid);
