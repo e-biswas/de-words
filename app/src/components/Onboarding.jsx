@@ -44,7 +44,7 @@ const STEPS = [
   },
   {
     title: "Filter & Find",
-    subtitle: "2,049 words at your fingertips. Narrow them down instantly.",
+    subtitle: "4,795 words at your fingertips. Narrow them down instantly.",
     visual: "filter",
     body: (
       <>
@@ -135,7 +135,7 @@ function FilterVisual() {
         <span className="ono-chip">noun</span>
         <span className="ono-chip accent">food</span>
       </div>
-      <span className="ono-f-count">581 words match</span>
+      <span className="ono-f-count">1,681 words match</span>
     </div>
   );
 }
