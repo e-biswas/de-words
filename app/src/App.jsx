@@ -10,6 +10,7 @@ import FlashcardMode from "./components/FlashcardMode";
 import PatternStats from "./components/PatternStats";
 import WordDetail from "./components/WordDetail";
 import Onboarding from "./components/Onboarding";
+import CatLogo from "./components/CatLogo";
 import "./App.css";
 
 const TOP_LEVEL_GROUPS = [
@@ -88,19 +89,7 @@ export default function App() {
     return (
       <div className="loading-screen">
         <div className="loading-logo">
-          <svg width="40" height="40" viewBox="0 0 32 32" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" opacity="0.5">
-            <path d="M8 11L11 3l3 7" />
-            <path d="M24 11L21 3l-3 7" />
-            <ellipse cx="16" cy="17" rx="9" ry="8" />
-            <ellipse cx="12.5" cy="16" rx="2" ry="2.5" />
-            <ellipse cx="19.5" cy="16" rx="2" ry="2.5" />
-            <circle cx="12.5" cy="16" r="1" fill="currentColor" />
-            <circle cx="19.5" cy="16" r="1" fill="currentColor" />
-            <path d="M15 19l1 1.5l1-1.5" />
-            <path d="M14 20.5q2 1.5 4 0" />
-            <path d="M7 18l3.5 1M7 20l3.5 0.5" />
-            <path d="M25 18l-3.5 1M25 20l-3.5 0.5" />
-          </svg>
+          <CatLogo size={40} opacity="0.5" />
         </div>
 
         <div className="loading-ring">
@@ -134,19 +123,7 @@ export default function App() {
         >
           ☰
         </button>
-        <svg className="logo-cat" width="28" height="28" viewBox="0 0 32 32" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M8 11L11 3l3 7" />
-          <path d="M24 11L21 3l-3 7" />
-          <ellipse cx="16" cy="17" rx="9" ry="8" />
-          <ellipse cx="12.5" cy="16" rx="2" ry="2.5" />
-          <ellipse cx="19.5" cy="16" rx="2" ry="2.5" />
-          <circle cx="12.5" cy="16" r="1" fill="currentColor" />
-          <circle cx="19.5" cy="16" r="1" fill="currentColor" />
-          <path d="M15 19l1 1.5l1-1.5" />
-          <path d="M14 20.5q2 1.5 4 0" />
-          <path d="M7 18l3.5 1M7 20l3.5 0.5" />
-          <path d="M25 18l-3.5 1M25 20l-3.5 0.5" />
-        </svg>
+        <CatLogo className="logo-cat" size={28} />
         <h1>LDW</h1>
 
         <div className="search-wrap">
@@ -373,6 +350,14 @@ export default function App() {
             e-biswas
           </a>
         </span>
+        <span> | </span>
+        <a
+          href="https://www.flaticon.com/free-icon/cat_18291644"
+          target="_blank"
+          rel="noopener"
+        >
+          Icon designed by Whitevector from Flaticon
+        </a>
       </footer>
 
       {flashcardOpen && (
