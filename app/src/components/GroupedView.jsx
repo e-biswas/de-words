@@ -90,7 +90,7 @@ function buildArticleGroups(words) {
 
   for (const w of words) {
     const art = w.noun?.article;
-    if (art && ARTICLE_ORDER.hasOwnProperty(art)) {
+    if (art && Object.prototype.hasOwnProperty.call(ARTICLE_ORDER, art)) {
       if (!groups.has(art)) groups.set(art, []);
       groups.get(art).push(w);
     } else {
@@ -209,7 +209,6 @@ function ArticleList({ node, depth, onSelect, selectedId }) {
 function NestedSection({ child, depth, onSelect, selectedId }) {
   const [collapsed, setCollapsed] = useState(false);
   const isArticleLevel = child.child?.type === "articleList";
-  const isLeaf = !child.child;
 
   return (
     <div

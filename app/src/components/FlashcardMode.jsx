@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback, useEffect } from "react";
-import { recordResult, getStats, buildSession, LEVEL_LABELS } from "../memory";
+import { recordResult, getStats, buildSession } from "../memory";
 import humanize from "../utils/humanize";
 import "./FlashcardMode.css";
 

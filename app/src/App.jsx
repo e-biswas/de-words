@@ -19,6 +19,40 @@ const TOP_LEVEL_GROUPS = [
   { value: "ending_pattern", label: "Ending" },
 ];
 
+function textIncludes(value, query) {
+  return typeof value === "string" && value.toLowerCase().includes(query);
+}
+
+function listIncludes(values, query) {
+  return Array.isArray(values) && values.some((value) => textIncludes(value, query));
+}
+
+function matchesSearch(word, query) {
+  const searchIndex = word.search_index;
+  if (
+    searchIndex &&
+    (listIncludes(searchIndex.de, query) ||
+      listIncludes(searchIndex.en, query) ||
+      listIncludes(searchIndex.bn, query) ||
+      listIncludes(searchIndex.tags, query))
+  ) {
+    return true;
+  }
+
+  return [
+    word.word,
+    word.display,
+    word.normalized,
+    word.meaning?.en,
+    word.meaning?.simple_en,
+    word.meaning_en,
+    word.noun?.singular,
+    word.noun?.plural,
+    word.part_of_speech,
+    word._level,
+  ].some((value) => textIncludes(value, query));
+}
+
 export default function App() {
   const {
     filters,
@@ -28,7 +62,7 @@ export default function App() {
     applyPatternFilter,
   } = useFilters();
 
-  const { allWords, loading, refreshMemory } = useWords(filters);
+  const { allWords, loading, loadingAll, refreshMemory } = useWords(filters);
 
   const [flashcardOpen, setFlashcardOpen] = useState(false);
   const [selectedWord, setSelectedWord] = useState(null);
@@ -53,17 +87,12 @@ export default function App() {
   }, [darkMode]);
 
   const filteredWords = useMemo(() => {
-    let words = applyFilters(allWords, filters);
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
-      words = words.filter(
-        (w) =>
-          w.word.toLowerCase().includes(q) ||
-          (w.meaning?.en || w.meaning_en || "").toLowerCase().includes(q) ||
-          (w.noun?.singular || "").toLowerCase().includes(q)
-      );
+    const query = searchQuery.trim().toLowerCase();
+    if (query) {
+      return allWords.filter((word) => matchesSearch(word, query));
     }
-    return words;
+
+    return applyFilters(allWords, filters);
   }, [allWords, filters, searchQuery]);
 
   const availableTopics = useMemo(() => getTopics(allWords), [allWords]);
@@ -142,6 +171,13 @@ export default function App() {
             >
               ×
             </button>
+          )}
+          {loadingAll && (
+            <span
+              className={`search-loading-dot ${searchQuery ? "with-clear" : ""}`}
+              aria-label="Loading vocabulary"
+              title="Loading vocabulary"
+            />
           )}
         </div>
 

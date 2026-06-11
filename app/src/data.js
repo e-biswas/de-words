@@ -1,5 +1,14 @@
 const LEVELS = ["a1", "a2", "b1"];
 const DATA_DIR = "/data";
+const SHARD_KINDS = ["nouns", "other"];
+const SHARDS = LEVELS.flatMap((level) =>
+  SHARD_KINDS.map((kind) => ({
+    level,
+    kind,
+    key: `${level}_${kind}`,
+    file: `${DATA_DIR}/vhs_${level}_${kind}.json`,
+  }))
+);
 
 // POS values that carry noun data (article, gender_patterns)
 const NOUN_POS = new Set(["noun", "person_role_noun_pair", "noun_phrase"]);
@@ -7,11 +16,16 @@ const NOUN_POS = new Set(["noun", "person_role_noun_pair", "noun_phrase"]);
 // ── Incremental word cache ──────────────────────────────────────
 
 let wordCache = [];
+const shardCache = new Map();
 const loadedKeys = new Set();
 const pendingRequests = new Map(); // deduplicate in-flight fetches
 
 export function getWords() {
   return wordCache;
+}
+
+export function isAllWordsLoaded() {
+  return loadedKeys.size === SHARDS.length;
 }
 
 /**
@@ -22,35 +36,9 @@ export function getWords() {
 export async function loadWords({ levels = [], pos = [] } = {}) {
   const fetchPromises = [];
 
-  // Empty pos means "show all" — load everything
-  const showAll = pos.length === 0;
-  const wantsNouns = showAll || pos.some((p) => NOUN_POS.has(p));
-  const wantsOther = showAll || pos.some((p) => !NOUN_POS.has(p));
-
-  for (const rawLevel of levels) {
-    const level = rawLevel.toLowerCase();
-    if (wantsNouns) {
-      const key = `${level}_nouns`;
-      if (!loadedKeys.has(key) && !pendingRequests.has(key)) {
-        const file = `${DATA_DIR}/vhs_${level}_nouns.json`;
-        const promise = fetchFile(level, key, file);
-        pendingRequests.set(key, promise);
-        fetchPromises.push(promise);
-      } else if (pendingRequests.has(key)) {
-        fetchPromises.push(pendingRequests.get(key));
-      }
-    }
-    if (wantsOther) {
-      const key = `${level}_other`;
-      if (!loadedKeys.has(key) && !pendingRequests.has(key)) {
-        const file = `${DATA_DIR}/vhs_${level}_other.json`;
-        const promise = fetchFile(level, key, file);
-        pendingRequests.set(key, promise);
-        fetchPromises.push(promise);
-      } else if (pendingRequests.has(key)) {
-        fetchPromises.push(pendingRequests.get(key));
-      }
-    }
+  for (const shard of resolveShards({ levels, pos })) {
+    if (loadedKeys.has(shard.key)) continue;
+    fetchPromises.push(queueShardRequest(shard));
   }
 
   if (fetchPromises.length === 0) return wordCache;
@@ -59,27 +47,79 @@ export async function loadWords({ levels = [], pos = [] } = {}) {
   return wordCache;
 }
 
-async function fetchFile(level, key, file) {
-  const resp = await fetch(file);
-  const data = await resp.json();
-  const words = data.vocabulary.map((w) => ({
-    ...w,
-    _level: level.toUpperCase(),
-  }));
-  // Only merge once — deduplicated concurrent callers share the same promise
-  if (!loadedKeys.has(key)) {
-    wordCache = [...wordCache, ...words];
-    loadedKeys.add(key);
+function queueShardRequest(shard) {
+  if (!pendingRequests.has(shard.key)) {
+    pendingRequests.set(shard.key, fetchFile(shard));
   }
-  pendingRequests.delete(key);
-  return words;
+
+  return pendingRequests.get(shard.key);
+}
+
+function resolveShards({ levels = [], pos = [] } = {}) {
+  const selectedLevels =
+    levels.length > 0
+      ? new Set(levels.map((level) => level.toLowerCase()))
+      : new Set(LEVELS);
+
+  // Empty pos means "show all" — load both noun and non-noun shards.
+  const showAll = pos.length === 0;
+  const selectedKinds = new Set();
+  if (showAll || pos.some((p) => NOUN_POS.has(p))) selectedKinds.add("nouns");
+  if (showAll || pos.some((p) => !NOUN_POS.has(p))) selectedKinds.add("other");
+
+  return SHARDS.filter(
+    (shard) => selectedLevels.has(shard.level) && selectedKinds.has(shard.kind)
+  );
+}
+
+async function fetchFile({ level, key, file }) {
+  try {
+    const resp = await fetch(file);
+    if (!resp.ok) {
+      throw new Error(`Failed to load ${file}: ${resp.status}`);
+    }
+
+    const data = await resp.json();
+    const words = data.vocabulary.map((w) => ({
+      ...w,
+      _level: level.toUpperCase(),
+    }));
+
+    // Only merge once — deduplicated concurrent callers share the same promise
+    if (!loadedKeys.has(key)) {
+      shardCache.set(key, words);
+      loadedKeys.add(key);
+      rebuildWordCache();
+    }
+
+    return words;
+  } finally {
+    pendingRequests.delete(key);
+  }
+}
+
+function rebuildWordCache() {
+  wordCache = SHARDS.flatMap((shard) => shardCache.get(shard.key) || []);
 }
 
 /**
- * For backward compat during transition. Returns all currently loaded words.
+ * Load every vocabulary shard in parallel, while still sharing any in-flight
+ * requests started by filtered views.
  */
 export async function loadAllWords() {
-  return loadWords({ levels: LEVELS, pos: [] });
+  const fetchPromises = SHARDS
+    .filter((shard) => !loadedKeys.has(shard.key))
+    .map(queueShardRequest);
+
+  if (fetchPromises.length === 0) return wordCache;
+
+  const results = await Promise.allSettled(fetchPromises);
+  const failed = results.filter((result) => result.status === "rejected");
+  if (failed.length > 0) {
+    console.warn(`Failed to load ${failed.length} vocabulary shard(s)`, failed);
+  }
+
+  return wordCache;
 }
 
 // ── Derived data queries ────────────────────────────────────────

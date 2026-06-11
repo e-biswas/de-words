@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 
 const DEFAULT_FILTERS = {
-  levels: ["A1"],
+  levels: ["A1", "A2", "B1"],
   articles: [],
   topics: [],
   genderRules: [],
