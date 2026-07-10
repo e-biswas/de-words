@@ -11,6 +11,10 @@ import PatternStats from "./components/PatternStats";
 import WordDetail from "./components/WordDetail";
 import Onboarding from "./components/Onboarding";
 import CatLogo from "./components/CatLogo";
+import GrammarExperience from "./components/GrammarExperience";
+import PracticeHub from "./components/PracticeHub";
+import MixedPractice from "./components/MixedPractice";
+import useGrammarData from "./hooks/useGrammarData";
 import "./App.css";
 
 const TOP_LEVEL_GROUPS = [
@@ -63,8 +67,13 @@ export default function App() {
   } = useFilters();
 
   const { allWords, loading, loadingAll, refreshMemory } = useWords(filters);
+  const { data: grammarData, loading: grammarLoading } = useGrammarData();
 
   const [flashcardOpen, setFlashcardOpen] = useState(false);
+  const [mixedPracticeOpen, setMixedPracticeOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState("vocabulary");
+  const [grammarSection, setGrammarSection] = useState("today");
+  const [grammarTarget, setGrammarTarget] = useState({ topicId: null, level: "A2" });
   const [selectedWord, setSelectedWord] = useState(null);
   const [darkMode, setDarkMode] = useState(() => {
     return localStorage.getItem("ldw-dark") === "true";
@@ -114,6 +123,19 @@ export default function App() {
     [filteredWords]
   );
 
+  const openGrammarReference = (topicId = null) => {
+    const topic = grammarData?.topic_catalog?.find((item) => item.id === topicId);
+    const rule = grammarData?.rule_library?.find((item) => item.topic_id === topicId);
+    setGrammarTarget({
+      topicId,
+      level: topic?.level || rule?.level || "B1",
+    });
+    setGrammarSection("reference");
+    setSearchQuery("");
+    setMixedPracticeOpen(false);
+    setActiveSection("grammar");
+  };
+
   if (loading) {
     return (
       <div className="loading-screen">
@@ -145,63 +167,107 @@ export default function App() {
   return (
     <div className="app">
       <header className="app-header">
-        <button
+        {activeSection === "vocabulary" && <button
           className="hamburger"
+          type="button"
           onClick={() => setSidebarOpen((o) => !o)}
           aria-label="Toggle filters"
         >
-          ☰
-        </button>
+          Menu
+        </button>}
         <CatLogo className="logo-cat" size={28} />
         <h1>LDW</h1>
 
-        <div className="search-wrap">
+        <nav className="primary-nav" aria-label="Primary navigation">
+          <button
+            className={activeSection === "vocabulary" ? "active" : ""}
+            type="button"
+            onClick={() => {
+              setActiveSection("vocabulary");
+              setSearchQuery("");
+            }}
+          >
+            Vocabulary
+          </button>
+          <button
+            className={activeSection === "grammar" ? "active" : ""}
+            type="button"
+            onClick={() => {
+              setActiveSection("grammar");
+              setGrammarTarget({ topicId: null, level: "A2" });
+              setSearchQuery("");
+            }}
+          >
+            Grammar
+          </button>
+          <button
+            className={activeSection === "practice" ? "active" : ""}
+            type="button"
+            onClick={() => {
+              setActiveSection("practice");
+              setSearchQuery("");
+            }}
+          >
+            Practice
+          </button>
+        </nav>
+
+        {activeSection !== "practice" && <div className="search-wrap">
           <input
             type="text"
             className="global-search"
-            placeholder="Search..."
+            placeholder={activeSection === "grammar" ? "Search grammar" : "Search vocabulary"}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
           {searchQuery && (
             <button
               className="search-clear"
+              type="button"
               onClick={() => setSearchQuery("")}
               aria-label="Clear search"
             >
-              ×
+              x
             </button>
           )}
-          {loadingAll && (
+          {activeSection === "vocabulary" && loadingAll && (
             <span
               className={`search-loading-dot ${searchQuery ? "with-clear" : ""}`}
               aria-label="Loading vocabulary"
               title="Loading vocabulary"
             />
           )}
-        </div>
+        </div>}
 
-        <span className="word-count desk-only">
-          {filteredWords.length} word{filteredWords.length !== 1 ? "s" : ""}
-        </span>
+        {activeSection === "vocabulary" && (
+          <span className="word-count desk-only">
+            {filteredWords.length} word{filteredWords.length !== 1 ? "s" : ""}
+          </span>
+        )}
 
         <div className="header-actions">
-          <button
-            className={`icon-btn ${showStats ? "active" : ""}`}
-            onClick={() => setShowStats((s) => !s)}
-            title="Pattern statistics"
-          >
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-              <rect x="1" y="9" width="3" height="6" rx="0.5" />
-              <rect x="6.5" y="4" width="3" height="11" rx="0.5" />
-              <rect x="12" y="1" width="3" height="14" rx="0.5" />
-            </svg>
-          </button>
+          {activeSection === "vocabulary" && (
+            <button
+              className={`icon-btn ${showStats ? "active" : ""}`}
+              type="button"
+              onClick={() => setShowStats((s) => !s)}
+              aria-label="Toggle pattern statistics"
+              title="Pattern statistics"
+            >
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+                <rect x="1" y="9" width="3" height="6" rx="0.5" />
+                <rect x="6.5" y="4" width="3" height="11" rx="0.5" />
+                <rect x="12" y="1" width="3" height="14" rx="0.5" />
+              </svg>
+            </button>
+          )}
 
-          <div className="group-control desk-only">
+          {activeSection === "vocabulary" && <div className="group-control desk-only">
             <button
               className={`icon-btn ${groupBy.length > 0 ? "active" : ""}`}
+              type="button"
               onClick={() => setGroupBy(groupBy.length > 0 ? [] : ["article"])}
+              aria-label="Toggle word grouping"
               title="Group words"
             >
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
@@ -233,15 +299,17 @@ export default function App() {
                 })}
               </>
             )}
-          </div>
+          </div>}
 
           {/* Group toggle for mobile */}
-          <button
+          {activeSection === "vocabulary" && <button
             className="icon-btn mobile-only group-mob-btn"
+            type="button"
             onClick={() => {
               setGroupBarOpen((o) => !o);
               if (groupBy.length === 0) setGroupBy(["article"]);
             }}
+            aria-label="Toggle word grouping"
             title="Group words"
           >
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
@@ -249,11 +317,13 @@ export default function App() {
               <rect x="1" y="6.5" width="14" height="3" rx="0.5" />
               <rect x="1" y="12" width="14" height="3" rx="0.5" />
             </svg>
-          </button>
+          </button>}
 
           <button
             className="icon-btn"
+            type="button"
             onClick={() => setOnboardingOpen(true)}
+            aria-label="Open help guide"
             title="Help & guide"
           >
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -265,14 +335,16 @@ export default function App() {
 
           <button
             className="toggle-btn dark-toggle"
+            type="button"
             onClick={() => setDarkMode((d) => !d)}
+            aria-label="Toggle color theme"
           >
-            {darkMode ? "☀" : "☾"}
+            {darkMode ? "Light" : "Dark"}
           </button>
         </div>
       </header>
 
-      <div className={`mobile-group-bar ${groupBarOpen ? "open" : ""}`}>
+      {activeSection === "vocabulary" && <div className={`mobile-group-bar ${groupBarOpen ? "open" : ""}`}>
         {TOP_LEVEL_GROUPS.map((opt) => {
           const isActive = groupBy.includes(opt.value);
           const topLevels = groupBy.filter((g) => g !== "article");
@@ -292,9 +364,44 @@ export default function App() {
             </button>
           );
         })}
-      </div>
+      </div>}
 
-      <div className="layout">
+      {activeSection === "practice" ? (
+        <PracticeHub
+          wordCount={filteredWords.length}
+          nounCount={nounWords.length}
+          grammarRuleCount={grammarData?.rule_library?.length || 0}
+          grammarLoading={grammarLoading}
+          onStartMixed={() => setMixedPracticeOpen(true)}
+          onStartArticles={() => setFlashcardOpen(true)}
+          onOpenVocabulary={() => {
+            setActiveSection("vocabulary");
+            setShowStats(false);
+          }}
+          onOpenPatterns={() => {
+            setActiveSection("vocabulary");
+            setShowStats(true);
+            setGroupBy([]);
+          }}
+          onOpenGrammar={() => {
+            setGrammarTarget({ topicId: null, level: "A2" });
+            setGrammarSection("topics");
+            setActiveSection("grammar");
+          }}
+          onOpenGrammarReference={() => {
+            openGrammarReference();
+          }}
+        />
+      ) : activeSection === "grammar" ? (
+        <GrammarExperience
+          key={`grammar-${grammarSection}-${grammarTarget.level}-${grammarTarget.topicId || "all"}`}
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          initialSection={grammarSection}
+          initialLevel={grammarTarget.level}
+          selectedTopicId={grammarTarget.topicId}
+        />
+      ) : <div className="layout">
         {/* Mobile overlay */}
         {sidebarOpen && (
           <div className="sidebar-overlay" onClick={() => setSidebarOpen(false)} />
@@ -303,10 +410,12 @@ export default function App() {
         <aside className={`sidebar ${sidebarOpen ? "open" : ""}`}>
           <button
             className="practice-btn"
+            type="button"
             onClick={() => {
               setFlashcardOpen(true);
               setSidebarOpen(false);
             }}
+            aria-label={`Start article practice with ${nounWords.length} words`}
             disabled={nounWords.length === 0}
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -337,7 +446,7 @@ export default function App() {
                     onClick={() => toggleFilter(chip.category, chip.value)}
                     aria-label={`Remove ${chip.label}`}
                   >
-                    ×
+                    x
                   </button>
                 </span>
               ))}
@@ -377,11 +486,11 @@ export default function App() {
             />
           </aside>
         )}
-      </div>
+      </div>}
 
-      <footer className="app-footer">
+      {activeSection === "vocabulary" && <footer className="app-footer">
         <span>
-          Built with ❤️ by{" "}
+          Built by{" "}
           <a href="https://github.com/e-biswas" target="_blank" rel="noopener">
             e-biswas
           </a>
@@ -394,7 +503,7 @@ export default function App() {
         >
           Icon designed by Whitevector from Flaticon
         </a>
-      </footer>
+      </footer>}
 
       {flashcardOpen && (
         <FlashcardMode
@@ -402,6 +511,21 @@ export default function App() {
           onClose={() => {
             setFlashcardOpen(false);
             refreshMemory();
+          }}
+        />
+      )}
+
+      {mixedPracticeOpen && grammarData && (
+        <MixedPractice
+          words={nounWords}
+          grammarData={grammarData}
+          onClose={() => {
+            setMixedPracticeOpen(false);
+            refreshMemory();
+          }}
+          onOpenGrammarReference={(topicId) => {
+            refreshMemory();
+            openGrammarReference(topicId);
           }}
         />
       )}

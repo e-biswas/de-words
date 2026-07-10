@@ -107,7 +107,7 @@ export default function FlashcardMode({ words, onClose }) {
               <div className="stat skipped">{skipped.size} skipped</div>
             )}
           </div>
-          <button className="btn-primary" onClick={onClose}>
+          <button className="btn-primary" type="button" onClick={onClose}>
             Back to Browse
           </button>
         </div>
@@ -133,11 +133,11 @@ export default function FlashcardMode({ words, onClose }) {
             )}
           </span>
           <span className="flashcard-stats">
-            <span className="stat-ok">{score.correct} ✓</span>
-            <span className="stat-wrong">{score.wrong} ✗</span>
-            {streak >= 3 && <span className="stat-streak">🔥 {streak}</span>}
+            <span className="stat-ok">{score.correct} OK</span>
+            <span className="stat-wrong">{score.wrong} X</span>
+            {streak >= 3 && <span className="stat-streak">Streak {streak}</span>}
           </span>
-          <button className="close-btn" onClick={onClose}>×</button>
+          <button className="close-btn" type="button" aria-label="Close article practice" onClick={onClose}>x</button>
         </div>
 
         <div className={`flashcard-body ${animating ? "animating" : ""}`}>
@@ -152,6 +152,7 @@ export default function FlashcardMode({ words, onClose }) {
               ) : (
                 <button
                   className="peek-btn"
+                  type="button"
                   onClick={() => setPeeked((p) => new Set([...p, current.id]))}
                 >
                   peek meaning
@@ -162,16 +163,16 @@ export default function FlashcardMode({ words, onClose }) {
 
           {!revealed ? (
             <div className="flashcard-choices">
-              <button className="choice-btn choice-der" onClick={() => handleGuess("der")}>der</button>
-              <button className="choice-btn choice-die" onClick={() => handleGuess("die")}>die</button>
-              <button className="choice-btn choice-das" onClick={() => handleGuess("das")}>das</button>
+              <button className="choice-btn choice-der" type="button" onClick={() => handleGuess("der")}>der</button>
+              <button className="choice-btn choice-die" type="button" onClick={() => handleGuess("die")}>die</button>
+              <button className="choice-btn choice-das" type="button" onClick={() => handleGuess("das")}>das</button>
             </div>
           ) : (
             <div className="flashcard-result">
               <div className={`result-banner ${guess === current.noun.article ? "correct" : "wrong"}`}>
                 {guess === current.noun.article
-                  ? `✓ Correct — ${current.noun.article} ${current.noun.singular || current.word}`
-                  : `✗ Wrong — it's ${current.noun.article} ${current.noun.singular || current.word}`}
+                  ? `OK Correct - ${current.noun.article} ${current.noun.singular || current.word}`
+                  : `X Wrong - it's ${current.noun.article} ${current.noun.singular || current.word}`}
               </div>
 
               <div className="result-detail">
@@ -191,15 +192,15 @@ export default function FlashcardMode({ words, onClose }) {
                 )}
                 {prevStats && (
                   <p className="result-history">
-                    Seen {prevStats.correct + prevStats.wrong}× before —{" "}
+                    Seen {prevStats.correct + prevStats.wrong}x before -{" "}
                     {Math.round((prevStats.correct / Math.max(1, prevStats.correct + prevStats.wrong)) * 100)}% correct
                   </p>
                 )}
               </div>
 
               <div className="flashcard-actions">
-                <button className="btn-secondary" onClick={handleSkip}>Skip (s)</button>
-                <button className="btn-primary" onClick={handleNext}>Next (→)</button>
+                <button className="btn-secondary" type="button" onClick={handleSkip}>Skip (s)</button>
+                <button className="btn-primary" type="button" onClick={handleNext}>Next</button>
               </div>
             </div>
           )}
@@ -209,11 +210,12 @@ export default function FlashcardMode({ words, onClose }) {
           <span className="desk-only"><kbd>1</kbd> der</span>
           <span className="desk-only"><kbd>2</kbd> die</span>
           <span className="desk-only"><kbd>3</kbd> das</span>
-          <span className="desk-only"><kbd>→</kbd> next</span>
+          <span className="desk-only"><kbd>Right</kbd> next</span>
           <span className="desk-only"><kbd>s</kbd> skip</span>
           <span className="desk-only"><kbd>/</kbd> peek</span>
           <button
             className={`meaning-toggle ${showMeaningAlways ? "on" : ""}`}
+            type="button"
             onClick={() => setShowMeaningAlways((m) => !m)}
           >
             {showMeaningAlways ? "Meaning on" : "Meaning off"}

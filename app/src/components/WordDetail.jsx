@@ -9,8 +9,13 @@ export default function WordDetail({ word, onClose }) {
 
   return (
     <div className="word-detail">
-      <button className="close-btn" onClick={onClose}>
-        ×
+      <button
+        className="close-btn"
+        type="button"
+        aria-label="Close word details"
+        onClick={onClose}
+      >
+        x
       </button>
 
       <h2 className={`article-color article-${n?.article || "none"}`}>
@@ -21,7 +26,7 @@ export default function WordDetail({ word, onClose }) {
       <div className="detail-row">
         <span className="detail-label">Level</span>
         <span className="detail-val">
-          {word._level} — L{word.lesson} P{word.page}
+          {word._level} - L{word.lesson} P{word.page}
         </span>
       </div>
 
@@ -73,7 +78,7 @@ export default function WordDetail({ word, onClose }) {
                 {Array.isArray(gp.compound_parts)
                   ? gp.compound_parts.join(" + ")
                   : gp.compound_root}{" "}
-                → <strong>{gp.compound_root}</strong>
+                final part: <strong>{gp.compound_root}</strong>
               </span>
             </div>
           )}
@@ -82,14 +87,14 @@ export default function WordDetail({ word, onClose }) {
             <div className="detail-row">
               <span className="detail-label">Plural</span>
               <span className="detail-val">
-                {n?.plural || "—"} ({gp.plural_formation})
+                {n?.plural || "-"} ({gp.plural_formation})
               </span>
             </div>
           )}
 
           {gp.is_exception && (
             <div className="detail-row exception">
-              <span className="detail-label">⚠ Exception</span>
+              <span className="detail-label">Warning Exception</span>
               <span className="detail-val">Breaks: {gp.exception_to}</span>
             </div>
           )}
@@ -118,7 +123,7 @@ export default function WordDetail({ word, onClose }) {
           </div>
           {vp.past_tense_3sg && (
             <div className="detail-row">
-              <span className="detail-label">Prät. (3sg)</span>
+              <span className="detail-label">Prat. (3sg)</span>
               <span className="detail-val mono">{vp.past_tense_3sg}</span>
             </div>
           )}
@@ -148,8 +153,8 @@ export default function WordDetail({ word, onClose }) {
           <div className="detail-row">
             <span className="detail-label">Comparative</span>
             <span className="detail-val mono">
-              {ap.comparative || "—"} | {ap.superlative || "—"}
-              {ap.is_irregular_comparison && " ⚡irregular"}
+              {ap.comparative || "-"} | {ap.superlative || "-"}
+              {ap.is_irregular_comparison && " irregular"}
             </span>
           </div>
           {ap.common_opposite && (
@@ -164,11 +169,11 @@ export default function WordDetail({ word, onClose }) {
       <hr />
       <div className="detail-row">
         <span className="detail-label">Register</span>
-        <span className="detail-val">{word.usage?.register || "—"}</span>
+        <span className="detail-val">{word.usage?.register || "-"}</span>
       </div>
       <div className="detail-row">
         <span className="detail-label">Frequency</span>
-        <span className="detail-val">{word.usage?.frequency || "—"}</span>
+        <span className="detail-val">{word.usage?.frequency || "-"}</span>
       </div>
     </div>
   );

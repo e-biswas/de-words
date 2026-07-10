@@ -2,7 +2,7 @@ import { memo } from "react";
 import humanize from "../utils/humanize";
 import "./WordGrid.css";
 
-const LEVEL_DOTS = ["", "·", "··", "···", "✦", "★"];
+const LEVEL_DOTS = ["", "-", "--", "---", "*", "*"];
 
 function WordGrid({ words, onSelect, selectedId }) {
   const animateCards = words.length <= 40;
@@ -10,7 +10,7 @@ function WordGrid({ words, onSelect, selectedId }) {
   if (words.length === 0) {
     return (
       <div className="empty-state">
-        <div className="empty-icon">📖</div>
+        <div className="empty-icon">Book</div>
         <p>No words match your filters</p>
         <span className="empty-hint">Try removing some filters or selecting a different level</span>
       </div>

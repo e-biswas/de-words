@@ -60,7 +60,7 @@ export default function PatternStats({ words, onApplyFilter }) {
       </p>
 
       <div className="pattern-section">
-        <h4>Suffix → Gender</h4>
+        <h4>Suffix to Gender</h4>
         <div className="pattern-list">
           {endingStats.slice(0, 20).map(({ ending, total, dominant, pct, articles }) => (
             <button

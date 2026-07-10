@@ -155,8 +155,13 @@ function FilterSection({ title, children, defaultOpen = true }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
     <div className="filter-group">
-      <button className="filter-section-header" onClick={() => setOpen((o) => !o)}>
-        <span className="filter-section-arrow">{open ? "▾" : "▸"}</span>
+      <button
+        className="filter-section-header"
+        type="button"
+        aria-expanded={open}
+        onClick={() => setOpen((o) => !o)}
+      >
+        <span className="filter-section-arrow">{open ? "v" : ">"}</span>
         {title}
       </button>
       {open && <div className="filter-section-body">{children}</div>}
@@ -212,7 +217,7 @@ function FilterPanel({
       <div className="filter-header">
         <h3>Filters{activeFilterCount > 0 ? ` (${activeFilterCount})` : ""}</h3>
         {activeFilterCount > 0 && (
-          <button className="clear-filters-btn" onClick={clearAllFilters}>
+          <button className="clear-filters-btn" type="button" onClick={clearAllFilters}>
             Clear all
           </button>
         )}
@@ -225,10 +230,11 @@ function FilterPanel({
               {chip.label}
               <button
                 className="pattern-chip-x"
+                type="button"
                 onClick={() => toggleFilter(chip.category, chip.value)}
                 aria-label={`Remove ${chip.label}`}
               >
-                ×
+                x
               </button>
             </span>
           ))}

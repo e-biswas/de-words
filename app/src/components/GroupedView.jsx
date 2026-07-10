@@ -122,7 +122,7 @@ function buildArticleGroups(words) {
   return { type: "articleList", children };
 }
 
-const LEVEL_DOTS = ["", "·", "··", "···", "✦", "★"];
+const LEVEL_DOTS = ["", "-", "--", "---", "*", "*"];
 
 function WordCards({ words, onSelect, selectedId }) {
   const animateCards = words.length <= 40;
@@ -176,7 +176,7 @@ function ArticleGroup({ child, onSelect, selectedId }) {
         className={`nest-header article-${child.key}`}
         onClick={() => setCollapsed((c) => !c)}
       >
-        <span className="nest-arrow">{collapsed ? "▸" : "▾"}</span>
+        <span className="nest-arrow">{collapsed ? ">" : "v"}</span>
         <span className="nest-label">{child.label}</span>
         <span className="nest-count">{child.count}</span>
       </button>
@@ -222,7 +222,7 @@ function NestedSection({ child, depth, onSelect, selectedId }) {
         }`}
         onClick={() => setCollapsed((c) => !c)}
       >
-        <span className="nest-arrow">{collapsed ? "▸" : "▾"}</span>
+        <span className="nest-arrow">{collapsed ? ">" : "v"}</span>
         <span className="nest-label">{child.label}</span>
         <span className="nest-count">{child.count}</span>
       </button>
@@ -276,7 +276,7 @@ function GroupedView({ words, groupBy, onSelect, selectedId }) {
     return (
       <div className="grouped-view">
         <div className="grouped-summary">
-          {tree.children.length} group{tree.children.length !== 1 ? "s" : ""} ·{" "}
+          {tree.children.length} group{tree.children.length !== 1 ? "s" : ""} -{" "}
           {words.length} word{words.length !== 1 ? "s" : ""}
         </div>
         <ArticleList
@@ -294,7 +294,7 @@ function GroupedView({ words, groupBy, onSelect, selectedId }) {
   return (
     <div className="grouped-view">
       <div className="grouped-summary">
-        {topCount} group{topCount !== 1 ? "s" : ""} ·{" "}
+        {topCount} group{topCount !== 1 ? "s" : ""} -{" "}
         {words.length} word{words.length !== 1 ? "s" : ""}
       </div>
       {tree.children.map((child) => (

@@ -10,10 +10,10 @@ const STEPS = [
     body: (
       <>
         <p>Most apps show the article and hope you remember it.</p>
-        <p>LDW tells you <strong>why</strong> — every noun is tagged with its gender rule, ending, and a memory hint.</p>
+        <p>LDW tells you <strong>why</strong> - every noun is tagged with its gender rule, ending, and a memory hint.</p>
         <div className="ono-example">
           <span className="ono-ex-word">die Zeitung</span>
-          <span className="ono-ex-hint">→ -ung words are always feminine</span>
+          <span className="ono-ex-hint">Rule: -ung words are always feminine</span>
         </div>
       </>
     ),
@@ -26,19 +26,19 @@ const STEPS = [
       <>
         <div className="ono-icon-row">
           <span className="ono-icon-box"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><rect x="1" y="9" width="3" height="6" rx="0.5"/><rect x="6.5" y="4" width="3" height="11" rx="0.5"/><rect x="12" y="1" width="3" height="14" rx="0.5"/></svg></span>
-          <span className="ono-icon-label"><strong>Stats</strong> — see which endings map to which gender</span>
+          <span className="ono-icon-label"><strong>Stats</strong> - see which endings map to which gender</span>
         </div>
         <div className="ono-icon-row">
           <span className="ono-icon-box"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><rect x="1" y="1" width="14" height="3" rx="0.5"/><rect x="1" y="6.5" width="14" height="3" rx="0.5"/><rect x="1" y="12" width="14" height="3" rx="0.5"/></svg></span>
-          <span className="ono-icon-label"><strong>Group</strong> — nest words by topic, rule, or ending</span>
+          <span className="ono-icon-label"><strong>Group</strong> - nest words by topic, rule, or ending</span>
         </div>
         <div className="ono-icon-row">
           <span className="ono-icon-box"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="8" cy="8" r="6.5"/><path d="M6 6.5c0-.8.9-1.5 2-1.5s2 .7 2 1.5c0 1-1 1.3-1 2"/><circle cx="8" cy="11.5" r="0.7" fill="currentColor" stroke="none"/></svg></span>
-          <span className="ono-icon-label"><strong>Help</strong> — reopen this guide anytime</span>
+          <span className="ono-icon-label"><strong>Help</strong> - reopen this guide anytime</span>
         </div>
         <div className="ono-icon-row">
-          <span className="ono-icon-box"><span className="ono-icon-char">☾</span></span>
-          <span className="ono-icon-label"><strong>Dark mode</strong> — easy on the eyes at night</span>
+          <span className="ono-icon-box"><span className="ono-icon-char">Dark</span></span>
+          <span className="ono-icon-label"><strong>Dark mode</strong> - easy on the eyes at night</span>
         </div>
       </>
     ),
@@ -49,9 +49,9 @@ const STEPS = [
     visual: "filter",
     body: (
       <>
-        <p>Use the <strong>sidebar filters</strong> — level, article, part of speech, topic, and more. Every option shows a live count.</p>
+        <p>Use the <strong>sidebar filters</strong> - level, article, part of speech, topic, and more. Every option shows a live count.</p>
         <p>The <strong>search bar</strong> finds words by German spelling, English meaning, or noun form.</p>
-        <p className="ono-tip">💡 Tap the hamburger menu ☰ on mobile to open filters.</p>
+        <p className="ono-tip">Tip: Tap the hamburger menu on mobile to open filters.</p>
       </>
     ),
   },
@@ -61,7 +61,7 @@ const STEPS = [
     visual: "group",
     body: (
       <>
-        <p>Tap <strong>Group</strong> then add levels — e.g. Topic → Article, or Gender Rule → Article.</p>
+        <p>Tap <strong>Group</strong> then add levels - e.g. Topic to Article, or Gender Rule to Article.</p>
         <p>Ordering numbers show the nesting hierarchy. Tap a group header to expand or collapse it.</p>
         <p>Open <strong>Pattern Stats</strong> to browse every suffix and its gender breakdown with percentage bars.</p>
       </>
@@ -75,7 +75,7 @@ const STEPS = [
       <>
         <p>Tap <strong>Practice</strong> to enter flashcard mode. Guess <strong>der</strong>, <strong>die</strong>, or <strong>das</strong> for each word.</p>
         <p>After each guess you see the <strong>pattern rule</strong>, a memory hint, and your history with that word.</p>
-        <p>Uses <strong>spaced repetition</strong> — words you know appear less often, tricky ones come back sooner.</p>
+        <p>Uses <strong>spaced repetition</strong> - words you know appear less often, tricky ones come back sooner.</p>
       </>
     ),
   },
@@ -85,8 +85,8 @@ const STEPS = [
     visual: "progress",
     body: (
       <>
-        <p>Every word moves through <strong>6 mastery levels</strong>: New → Seen → Learning → Familiar → Known → Mastered.</p>
-        <p>Filter by learning status to focus on words that need review. No account needed — everything stays in your browser.</p>
+        <p>Every word moves through <strong>6 mastery levels</strong>: New, Seen, Learning, Familiar, Known, and Mastered.</p>
+        <p>Filter by learning status to focus on words that need review. No account needed - everything stays in your browser.</p>
       </>
     ),
   },
@@ -97,7 +97,7 @@ const STEPS = [
     body: (
       <>
         <p>Open the sidebar, pick some filters, and dive in. Tap <strong>Practice</strong> whenever you're ready to test yourself.</p>
-        <p className="ono-tip">Viel Erfolg! 🎉</p>
+        <p className="ono-tip">Viel Erfolg! </p>
       </>
     ),
   },
@@ -120,9 +120,9 @@ function HeaderVisual() {
         <span className="ono-h-icon"><svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><rect x="1" y="9" width="3" height="6" rx="0.5"/><rect x="6.5" y="4" width="3" height="11" rx="0.5"/><rect x="12" y="1" width="3" height="14" rx="0.5"/></svg></span>
         <span className="ono-h-icon active"><svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><rect x="1" y="1" width="14" height="3" rx="0.5"/><rect x="1" y="6.5" width="14" height="3" rx="0.5"/><rect x="1" y="12" width="14" height="3" rx="0.5"/></svg></span>
         <span className="ono-h-icon"><svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="8" cy="8" r="6.5"/><path d="M6 6.5c0-.8.9-1.5 2-1.5s2 .7 2 1.5c0 1-1 1.3-1 2"/><circle cx="8" cy="11.5" r="0.7" fill="currentColor" stroke="none"/></svg></span>
-        <span className="ono-h-icon dark">☾</span>
+        <span className="ono-h-icon dark">Dark</span>
       </div>
-      <span className="ono-h-label">— top-right header tools</span>
+      <span className="ono-h-label">- top-right header tools</span>
     </div>
   );
 }
@@ -170,10 +170,10 @@ function PracticeVisual() {
         <span className="ono-card-word">Zeitung</span>
         <div className="ono-card-btns">
           <span className="ono-card-btn der">der</span>
-          <span className="ono-card-btn die active">die ✓</span>
+          <span className="ono-card-btn die active">die OK</span>
           <span className="ono-card-btn das">das</span>
         </div>
-        <span className="ono-card-hint">-ung → always feminine</span>
+        <span className="ono-card-hint">-ung means always feminine</span>
       </div>
     </div>
   );
@@ -230,12 +230,13 @@ export default function Onboarding({ onClose }) {
   return (
     <div className="ono-overlay" onClick={onClose}>
       <div className="ono-modal" onClick={(e) => e.stopPropagation()}>
-        <button className="ono-close" onClick={onClose}>×</button>
+        <button className="ono-close" type="button" aria-label="Close help guide" onClick={onClose}>x</button>
 
         <div className="ono-step-indicator">
           {STEPS.map((_, i) => (
             <button
               key={i}
+              type="button"
               className={`ono-dot ${i === step ? "active" : ""} ${i < step ? "done" : ""}`}
               onClick={() => setStep(i)}
               aria-label={`Step ${i + 1}`}
@@ -254,23 +255,24 @@ export default function Onboarding({ onClose }) {
         </div>
 
         <div className="ono-footer">
-          <button className="ono-btn skip" onClick={onClose}>
+          <button className="ono-btn skip" type="button" onClick={onClose}>
             Skip tour
           </button>
           <div className="ono-nav">
             <button
               className="ono-btn secondary"
+              type="button"
               disabled={step === 0}
               onClick={() => setStep((s) => s - 1)}
             >
               Back
             </button>
             {isLast ? (
-              <button className="ono-btn primary" onClick={onClose}>
+              <button className="ono-btn primary" type="button" onClick={onClose}>
                 Get Started
               </button>
             ) : (
-              <button className="ono-btn primary" onClick={() => setStep((s) => s + 1)}>
+              <button className="ono-btn primary" type="button" onClick={() => setStep((s) => s + 1)}>
                 Next
               </button>
             )}
